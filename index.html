@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2d game</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        height: 100%;
+        height: 100%;
+      }
+
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #canvas1 {
+        border: 5px solid;
+        background-color: #4d97bc;
+        max-width: 100%;
+        max-height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas1"></canvas>
+
+    <img src="./assets/player.png" id="player" hidden />
+
+    <img src="./assets/angler1.png" id="angler1" hidden />
+    <img src="./assets/angler2.png" id="angler2" hidden />
+    <img src="./assets/lucky.png" id="lucky" hidden />
+
+    <img src="./assets/layer1.png" id="layer1" hidden />
+    <img src="./assets/layer2.png" id="layer2" hidden />
+    <img src="./assets/layer3.png" id="layer3" hidden />
+    <img src="./assets/layer4.png" id="layer4" hidden />
+
+    <script src="script.js"></script>
+  </body>
+</html>
