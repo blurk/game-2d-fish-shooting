@@ -4,7 +4,7 @@ window.addEventListener("load", function name() {
 
   const ctx = canvas.getContext("2d");
 
-  canvas.width = 700;
+  canvas.width = 800;
   canvas.height = 500;
 
   class InputHandler {
@@ -74,13 +74,13 @@ window.addEventListener("load", function name() {
       this.angle = 0;
       this.velocityOfAngle = Math.random() * 0.2 - 0.1;
       this.bounced = 0;
-      this.bottomBounceBoundary = Math.random() * 100 + 60;
+      this.bottomBounceBoundary = Math.random() * 80 + 60;
     }
 
     update() {
       this.angle += this.velocityOfAngle;
       this.speedY += this.gravity;
-      this.x -= this.speedX;
+      this.x -= this.speedX + this.game.speed;
       this.y += this.speedY;
 
       if (this.y > this.height + this.size || this.x < 0 - this.size) {
@@ -97,17 +97,21 @@ window.addEventListener("load", function name() {
     }
 
     draw(context) {
+      context.save();
+      context.translate(this.x, this.y);
+      context.rotate(this.angle);
       context.drawImage(
         this.image,
         this.frameX * this.spriteSize,
         this.frameY * this.spriteSize,
         this.spriteSize,
         this.spriteSize,
-        this.x,
-        this.y,
+        this.size * -0.5,
+        this.size * -0.5,
         this.size,
         this.size
       );
+      context.restore();
     }
   }
 
@@ -233,7 +237,9 @@ window.addEventListener("load", function name() {
     enterPowerUp() {
       this.powerUpTimer = 0;
       this.powerUp = true;
-      this.game.ammo = this.game.maxAmmo;
+      if (this.game.ammo < this.game.maxAmmo) {
+        this.game.ammo = this.game.maxAmmo;
+      }
     }
   }
 
@@ -291,7 +297,7 @@ window.addEventListener("load", function name() {
       super(game);
       this.width = 228;
       this.height = 169;
-      this.y = Math.random() * (this.game.height * 0.9 - this.height);
+      this.y = Math.random() * (this.game.height * 0.95 - this.height);
       this.image = document.getElementById("angler1");
 
       this.frameY = Math.floor(Math.random() * 3);
@@ -306,7 +312,7 @@ window.addEventListener("load", function name() {
       super(game);
       this.width = 213;
       this.height = 165;
-      this.y = Math.random() * (this.game.height * 0.9 - this.height);
+      this.y = Math.random() * (this.game.height * 0.95 - this.height);
       this.image = document.getElementById("angler2");
 
       this.frameY = Math.floor(Math.random() * 2);
@@ -321,7 +327,7 @@ window.addEventListener("load", function name() {
       super(game);
       this.width = 99;
       this.height = 95;
-      this.y = Math.random() * (this.game.height * 0.9 - this.height);
+      this.y = Math.random() * (this.game.height * 0.95 - this.height);
       this.image = document.getElementById("lucky");
 
       this.frameY = Math.floor(Math.random() * 2);
@@ -330,6 +336,27 @@ window.addEventListener("load", function name() {
       this.score = this.lives * 5;
 
       this.type = "lucky";
+    }
+  }
+
+  class HiveWhale extends Enemy {
+    constructor(game) {
+      super(game);
+
+      this.width = 400;
+      this.height = 227;
+
+      this.y = Math.random() * (this.game.height * 0.95 - this.height);
+
+      this.image = document.getElementById("hivewhale");
+
+      this.frameY = 0;
+
+      this.lives = 15;
+      this.score = this.lives;
+
+      this.type = "hive";
+      this.speedX = Math.random() * -1.2 - 0.2;
     }
   }
 
@@ -477,13 +504,13 @@ window.addEventListener("load", function name() {
       this.winningScore = 10;
 
       this.gameTime = 0;
-      this.timeLimit = 15 * 1000;
+      this.timeLimit = 1500 * 1000;
 
       this.speed = 1;
 
       this.background = new Background(this);
 
-      this.debug = true;
+      this.debug = false;
       this.particles = [];
     }
 
@@ -585,9 +612,9 @@ window.addEventListener("load", function name() {
 
     draw(context) {
       this.background.draw(context);
+      this.ui.draw(context);
 
       this.player.draw(context);
-      this.ui.draw(context);
 
       this.particles.forEach((particle) => {
         particle.draw(context);
@@ -603,12 +630,17 @@ window.addEventListener("load", function name() {
     addEnemy() {
       const randomValue = Math.random();
 
-      const newEnemy =
-        randomValue < 0.3
-          ? new Angler1(this)
-          : randomValue < 0.6
-          ? new Angler2(this)
-          : new LuckyFish(this);
+      let newEnemy;
+
+      if (randomValue < 0.3) {
+        newEnemy = new Angler1(this);
+      } else if (randomValue < 0.6) {
+        newEnemy = new Angler2(this);
+      } else if (randomValue < 0.8) {
+        newEnemy = new HiveWhale(this);
+      } else {
+        newEnemy = new LuckyFish(this);
+      }
 
       this.enemies.push(newEnemy);
     }
