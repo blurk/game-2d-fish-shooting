@@ -276,7 +276,7 @@ window.addEventListener("load", function name() {
       context.drawImage(
         this.image,
         this.frameX * this.width,
-        this.frameY + this.height,
+        this.frameY * this.height,
         this.width,
         this.height,
         this.x,
