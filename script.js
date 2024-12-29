@@ -4,7 +4,7 @@ window.addEventListener("load", function name() {
 
   const ctx = canvas.getContext("2d");
 
-  canvas.width = 800;
+  canvas.width = 1000;
   canvas.height = 500;
 
   class InputHandler {
@@ -302,7 +302,7 @@ window.addEventListener("load", function name() {
 
       this.frameY = Math.floor(Math.random() * 3);
 
-      this.lives = 2;
+      this.lives = 5;
       this.score = this.lives;
     }
   }
@@ -317,7 +317,7 @@ window.addEventListener("load", function name() {
 
       this.frameY = Math.floor(Math.random() * 2);
 
-      this.lives = 3;
+      this.lives = 6;
       this.score = this.lives;
     }
   }
@@ -332,7 +332,7 @@ window.addEventListener("load", function name() {
 
       this.frameY = Math.floor(Math.random() * 2);
 
-      this.lives = 3;
+      this.lives = 5;
       this.score = this.lives * 5;
 
       this.type = "lucky";
@@ -352,7 +352,7 @@ window.addEventListener("load", function name() {
 
       this.frameY = 0;
 
-      this.lives = 15;
+      this.lives = 20;
       this.score = this.lives;
 
       this.type = "hive";
@@ -573,19 +573,19 @@ window.addEventListener("load", function name() {
       this.ammo = 20;
       this.maxAmmo = 50;
       this.ammoTimer = 0;
-      this.ammoInterval = 500; // 500ms
+      this.ammoInterval = 350;
 
       this.enemies = [];
       this.enemyTimer = 0;
-      this.enemyInterval = 1000;
+      this.enemyInterval = 2000;
 
       this.gameOver = false;
 
       this.score = 0;
-      this.winningScore = 10;
+      this.winningScore = 80;
 
       this.gameTime = 0;
-      this.timeLimit = 1500 * 1000;
+      this.timeLimit = 30 * 1000;
 
       this.speed = 1;
 
@@ -654,7 +654,7 @@ window.addEventListener("load", function name() {
 
           if (enemy.type === "lucky") {
             this.player.enterPowerUp();
-          } else {
+          } else if (!this.gameOver) {
             this.score--;
           }
         }
@@ -697,9 +697,9 @@ window.addEventListener("load", function name() {
                 this.score += enemy.score;
               }
 
-              if (this.score > this.winningScore) {
-                this.gameOver = true;
-              }
+              // if (this.score > this.winningScore) {
+              //   this.gameOver = true;
+              // }
             }
           }
         });
@@ -744,7 +744,7 @@ window.addEventListener("load", function name() {
         newEnemy = new Angler1(this);
       } else if (randomValue < 0.6) {
         newEnemy = new Angler2(this);
-      } else if (randomValue < 0.8) {
+      } else if (randomValue < 0.7) {
         newEnemy = new HiveWhale(this);
       } else {
         newEnemy = new LuckyFish(this);
