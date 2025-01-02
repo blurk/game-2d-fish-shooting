@@ -29,6 +29,53 @@ window.addEventListener("load", function name() {
     }
   }
 
+  class SoundController {
+    constructor() {
+      /** @type {HTMLAudioElement} */
+      this.powerUpSound = document.getElementById("powerup");
+      /** @type {HTMLAudioElement} */
+      this.powerDownSound = document.getElementById("powerdown");
+      /** @type {HTMLAudioElement} */
+      this.hitSound = document.getElementById("hit");
+      /** @type {HTMLAudioElement} */
+      this.shotSound = document.getElementById("shot");
+      /** @type {HTMLAudioElement} */
+      this.explosionSound = document.getElementById("explosion");
+      /** @type {HTMLAudioElement} */
+      this.shieldSound = document.getElementById("shield");
+    }
+
+    powerUp() {
+      this.powerUpSound.currentTime = 0;
+      this.powerUpSound.play();
+    }
+
+    powerDown() {
+      this.powerDownSound.currentTime = 0;
+      this.powerDownSound.play();
+    }
+
+    explosion() {
+      this.explosionSound.currentTime = 0;
+      this.explosionSound.play();
+    }
+
+    shot() {
+      this.shotSound.currentTime = 0;
+      this.shotSound.play();
+    }
+
+    hit() {
+      this.hitSound.currentTime = 0;
+      this.hitSound.play();
+    }
+
+    shield() {
+      this.sh.currentTime = 0;
+      this.hit.play();
+    }
+  }
+
   class Projecttile {
     /**
      * @param {Game} game
@@ -179,6 +226,7 @@ window.addEventListener("load", function name() {
       // Power up
       if (this.powerUp) {
         if (this.powerUpTimer > this.powerUpLimit) {
+          this.game.sound.powerDown();
           this.powerUpTimer = 0;
           this.powerUp = false;
           this.frameY = 0;
@@ -215,12 +263,14 @@ window.addEventListener("load", function name() {
     }
 
     shootTop() {
+      this.game.sound.shot();
       if (this.game.ammo > 0) {
         this.projectiles.push(
           new Projecttile(this.game, this.x + 80, this.y + 30)
         );
         this.game.ammo--;
       }
+
       if (this.powerUp) {
         this.shootBottom();
       }
@@ -235,6 +285,7 @@ window.addEventListener("load", function name() {
     }
 
     enterPowerUp() {
+      this.game.sound.powerUp();
       this.powerUpTimer = 0;
       this.powerUp = true;
       if (this.game.ammo < this.game.maxAmmo) {
@@ -381,6 +432,48 @@ window.addEventListener("load", function name() {
     }
   }
 
+  class BulbWhale extends Enemy {
+    constructor(game) {
+      super(game);
+
+      this.width = 270;
+      this.height = 219;
+
+      this.y = Math.random() * (this.game.height * 0.95 - this.height);
+
+      this.image = document.getElementById("bulbwhale");
+
+      this.frameY = Math.floor(Math.random() * 2);
+
+      this.lives = 20;
+      this.score = this.lives;
+
+      this.speedX = Math.random() * -1.2 - 0.2;
+    }
+  }
+
+  class MoonFish extends Enemy {
+    constructor(game) {
+      super(game);
+
+      this.width = 227;
+      this.height = 240;
+
+      this.y = Math.random() * (this.game.height * 0.95 - this.height);
+
+      this.image = document.getElementById("moonfish");
+
+      this.frameY = Math.floor(Math.random() * 2);
+
+      this.lives = 10;
+      this.score = this.lives;
+
+      this.speedX = Math.random() * -1.2 - 2;
+
+      this.type = "moon";
+    }
+  }
+
   class Layer {
     constructor(game, image, speedModifier) {
       this.game = game;
@@ -460,7 +553,6 @@ window.addEventListener("load", function name() {
       }
 
       if (this.frameX > this.maxFrame) {
-        debugger;
         this.markForDeletion = true;
       }
     }
@@ -595,6 +687,8 @@ window.addEventListener("load", function name() {
       this.particles = [];
 
       this.explosions = [];
+
+      this.sound = new SoundController();
     }
 
     update(deltaTime) {
@@ -642,6 +736,7 @@ window.addEventListener("load", function name() {
         if (this.checkCollision(this.player, enemy)) {
           enemy.markForDeletion = true;
           this.addExplosion(enemy);
+          this.sound.hit();
           for (let i = 0; i < enemy.score; i++) {
             this.particles.push(
               new Particle(
@@ -684,6 +779,11 @@ window.addEventListener("load", function name() {
 
               enemy.markForDeletion = true;
               this.addExplosion(enemy);
+              this.sound.explosion();
+
+              if (enemy.type === "moon") {
+                this.player.enterPowerUp();
+              }
 
               if (enemy.type === "hive") {
                 for (let i = 0; i < 5; i++) {
@@ -696,10 +796,6 @@ window.addEventListener("load", function name() {
               if (!this.gameOver) {
                 this.score += enemy.score;
               }
-
-              // if (this.score > this.winningScore) {
-              //   this.gameOver = true;
-              // }
             }
           }
         });
@@ -746,6 +842,10 @@ window.addEventListener("load", function name() {
         newEnemy = new Angler2(this);
       } else if (randomValue < 0.7) {
         newEnemy = new HiveWhale(this);
+      } else if (randomValue < 0.8) {
+        newEnemy = new BulbWhale(this);
+      } else if (randomValue < 0.9) {
+        newEnemy = new MoonFish(this);
       } else {
         newEnemy = new LuckyFish(this);
       }
