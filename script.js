@@ -71,12 +71,58 @@ window.addEventListener("load", function name() {
     }
 
     shield() {
-      this.sh.currentTime = 0;
-      this.hit.play();
+      this.shieldSound.currentTime = 0;
+      this.shieldSound.play();
     }
   }
 
-  class Projecttile {
+  class Shield {
+    constructor(game) {
+      this.game = game;
+      this.width = this.game.player.width;
+      this.height = this.game.player.height;
+
+      this.frameX = 0;
+      this.maxFrame = 24;
+
+      this.image = document.getElementById("shieldPng");
+      this.fps = 30;
+      this.timer = 0;
+      this.interval = 1000 / this.fps;
+    }
+
+    update(deltaTime) {
+      if (this.frameX < this.maxFrame) {
+        if (this.timer > this.interval) {
+          this.frameX++;
+          this.timer = 0;
+        } else {
+          this.timer += deltaTime;
+        }
+      }
+    }
+
+    draw(context) {
+      context.drawImage(
+        this.image,
+        this.frameX * this.width,
+        0,
+        this.width,
+        this.height,
+        this.game.player.x,
+        this.game.player.y,
+        this.width,
+        this.height
+      );
+    }
+
+    reset() {
+      this.game.sound.shield();
+      this.frameX = 0;
+    }
+  }
+
+  class Projectile {
     /**
      * @param {Game} game
      */
@@ -84,22 +130,54 @@ window.addEventListener("load", function name() {
       this.game = game;
       this.x = x;
       this.y = y;
-      this.width = 10;
-      this.height = 3;
-      this.speed = 3; // 3px per frame
+      // this.width = 10;
+      // this.height = 3;
+      this.width = 36.25;
+      this.height = 20;
+      // this.speed = 3;
+      this.speed = Math.random() * 0.2 + 2.8;
       this.markForDeletion = false;
-      this.image = document.getElementById("projectile");
+      // this.image = document.getElementById("projectile");
+      this.image = document.getElementById("fireball");
+      this.frameX = 0;
+      this.maxFrame = 3;
+
+      this.fps = 10;
+      this.timer = 0;
+      this.interval = 1000 / this.fps;
     }
 
-    update() {
+    update(deltaTime) {
       this.x += this.speed;
+
+      if (this.timer > this.interval) {
+        if (this.frameX < this.maxFrame) {
+          this.frameX++;
+          this.timer = 0;
+        } else {
+          this.frameX = 0;
+        }
+      } else {
+        this.timer += deltaTime;
+      }
+
       if (this.x > this.game.width * 0.8) {
         this.markForDeletion = true;
       }
     }
 
     draw(context) {
-      context.drawImage(this.image, this.x, this.y);
+      context.drawImage(
+        this.image,
+        this.frameX * this.width,
+        0,
+        this.width,
+        this.height,
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      );
     }
   }
 
@@ -207,12 +285,12 @@ window.addEventListener("load", function name() {
         this.y = -this.height * 0.5;
       }
       // Handle projectiles
-      this.projectiles.forEach((projecttile) => {
-        projecttile.update();
+      this.projectiles.forEach((projectile) => {
+        projectile.update(deltaTime);
       });
 
       this.projectiles = this.projectiles.filter(
-        (projecttile) => projecttile.markForDeletion === false
+        (projectile) => projectile.markForDeletion === false
       );
 
       // sprite animation
@@ -245,8 +323,8 @@ window.addEventListener("load", function name() {
       if (this.game.debug) {
         context.strokeRect(this.x, this.y, this.width, this.height);
       }
-      this.projectiles.forEach((projecttile) => {
-        projecttile.draw(context);
+      this.projectiles.forEach((projectile) => {
+        projectile.draw(context);
       });
 
       context.drawImage(
@@ -266,7 +344,7 @@ window.addEventListener("load", function name() {
       this.game.sound.shot();
       if (this.game.ammo > 0) {
         this.projectiles.push(
-          new Projecttile(this.game, this.x + 80, this.y + 30)
+          new Projectile(this.game, this.x + 80, this.y + 30)
         );
         this.game.ammo--;
       }
@@ -279,7 +357,7 @@ window.addEventListener("load", function name() {
     shootBottom() {
       if (this.game.ammo > 0) {
         this.projectiles.push(
-          new Projecttile(this.game, this.x + 80, this.y + 175)
+          new Projectile(this.game, this.x + 80, this.y + 175)
         );
       }
     }
@@ -463,7 +541,7 @@ window.addEventListener("load", function name() {
 
       this.image = document.getElementById("moonfish");
 
-      this.frameY = Math.floor(Math.random() * 2);
+      this.frameY = 0;
 
       this.lives = 10;
       this.score = this.lives;
@@ -471,6 +549,46 @@ window.addEventListener("load", function name() {
       this.speedX = Math.random() * -1.2 - 2;
 
       this.type = "moon";
+    }
+  }
+
+  class Stakler extends Enemy {
+    constructor(game) {
+      super(game);
+
+      this.width = 243;
+      this.height = 123;
+
+      this.y = Math.random() * (this.game.height * 0.95 - this.height);
+
+      this.image = document.getElementById("stalker");
+
+      this.frameY = 0;
+
+      this.lives = 5;
+      this.score = this.lives;
+
+      this.speedX = Math.random() * -1 - 1;
+    }
+  }
+
+  class RazorFin extends Enemy {
+    constructor(game) {
+      super(game);
+
+      this.width = 187;
+      this.height = 149;
+
+      this.y = Math.random() * (this.game.height * 0.95 - this.height);
+
+      this.image = document.getElementById("razorfin");
+
+      this.frameY = 0;
+
+      this.lives = 7;
+      this.score = this.lives;
+
+      this.speedX = Math.random() * -1 - 1;
     }
   }
 
@@ -689,6 +807,8 @@ window.addEventListener("load", function name() {
       this.explosions = [];
 
       this.sound = new SoundController();
+
+      this.shield = new Shield(this);
     }
 
     update(deltaTime) {
@@ -715,6 +835,8 @@ window.addEventListener("load", function name() {
         this.ammoTimer += deltaTime;
       }
 
+      this.shield.update(deltaTime);
+
       // particles
       this.particles.forEach((particle) => {
         particle.update();
@@ -733,10 +855,12 @@ window.addEventListener("load", function name() {
 
       this.enemies.forEach((enemy) => {
         enemy.update();
+        // Check if enemy hit player
         if (this.checkCollision(this.player, enemy)) {
           enemy.markForDeletion = true;
           this.addExplosion(enemy);
           this.sound.hit();
+          this.shield.reset();
           for (let i = 0; i < enemy.score; i++) {
             this.particles.push(
               new Particle(
@@ -754,9 +878,10 @@ window.addEventListener("load", function name() {
           }
         }
 
-        this.player.projectiles.forEach((projecttile) => {
-          if (this.checkCollision(projecttile, enemy)) {
-            projecttile.markForDeletion = true;
+        // Check if enemy was shot by player
+        this.player.projectiles.forEach((projectile) => {
+          if (this.checkCollision(projectile, enemy)) {
+            projectile.markForDeletion = true;
             enemy.lives--;
             this.particles.push(
               new Particle(
@@ -816,6 +941,8 @@ window.addEventListener("load", function name() {
 
       this.player.draw(context);
 
+      this.shield.draw(context);
+
       this.particles.forEach((particle) => {
         particle.draw(context);
       });
@@ -836,8 +963,12 @@ window.addEventListener("load", function name() {
 
       let newEnemy;
 
-      if (randomValue < 0.3) {
+      if (randomValue < 0.1) {
         newEnemy = new Angler1(this);
+      } else if (randomValue < 0.3) {
+        newEnemy = new Stakler(this);
+      } else if (randomValue < 0.5) {
+        newEnemy = new RazorFin(this);
       } else if (randomValue < 0.6) {
         newEnemy = new Angler2(this);
       } else if (randomValue < 0.7) {
